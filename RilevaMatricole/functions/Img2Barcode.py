@@ -1,17 +1,20 @@
 from dbr import *
 import pandas as pd
+from datetime import datetime
 
 
-def scanPhoto():
-    folder_path = r"media\RilevaMatricole_Images"
-    files = os.listdir(folder_path)
+def scanPhoto(folder_path, files):
 
     trovate = []
     file_list = []
+    lista_refusi = []
 
     index_refuso = 0
     i = 0
+
     for file in files:
+        i = i + 1
+        print("Barcode " + str(i))
 
         try:
             # 1.Initialize license.
@@ -58,36 +61,69 @@ def scanPhoto():
                 image_path = os.path.join(folder_path, file)
 
                 # 4.Decode barcodes from an image file.
-                results = reader.decode_file(image_path)
+
+                attempts = 0
+                exit = 0
+
+                while exit == 0 and attempts < 3:
+
+                    results = reader.decode_file(image_path)
+
+                # se il risultato è buono -> salva score ed esci dal while
+                #altrimenti prova altre 2 volte
 
                 # 5.Output the barcode text.
-                if results != None:
-                    for text_result in results:
-                        file_list.append(file)
-                        print("Barcode " + str(i))
-                        print("Barcode Format : " + text_result.barcode_format_string)
-                        print("Barcode Text : " + text_result.barcode_text)
+                    if results != None:
+                        for text_result in results:
+                            file_list.append(file)
 
-                        trovate.append(text_result.barcode_text)
-                        i = i + 1
-                else:
+                            print("Barcode Format : " + text_result.barcode_format_string)
+                            print("Barcode Text : " + text_result.barcode_text)
+                            trovate.append(text_result.barcode_text)
+
+                            exit = 1
+                    else:
+                        print("Tentativo n°: "+str(attempts+1))
+                        attempts += 1
+
+                if exit == 0:
+
                     index_refuso = index_refuso + 1
                     trovate.append("Refuso "+str(index_refuso))
+                    lista_refusi.append(file)
                     file_list.append(file)
                     print("No data detected.")
 
                 # 6.Release resource
                 reader.recycle_instance()
-
             except Exception as err:
                 index_refuso = index_refuso + 1
                 # trovate.append("Refuso "+index_refuso)
                 print("Barcode " + str(i))
-                i = i + 1
         except BarcodeReaderError as bre:
             print(bre)
+
+        print("----------------------------")
 
     print(trovate)
     dict_df = {"Trovate": trovate, "File list": file_list}
     df = pd.DataFrame(dict_df)
-    df.to_excel("Lista scansioni.xlsx", index=False)
+
+    Now = datetime.now()
+    file_name = Now.strftime("%Y%m%d_%H%M%S")+".xlsx"
+
+    df.to_excel(file_name, index=False)
+
+    dict_refusi = {"Refusi": lista_refusi}
+    df_refusi = pd.DataFrame(dict_refusi)
+    file_name_refusi = "Refusi_"+Now.strftime("%Y%m%d_%H%M%S")+".xlsx"
+    df_refusi.to_excel(file_name_refusi, index=False)
+
+    with pd.ExcelWriter(file_name) as writer:
+
+        # use to_excel function and specify the sheet_name and index
+        # to store the dataframe in specified sheet
+        df.to_excel(writer, sheet_name="Rilievo", index=False)
+        df_refusi.to_excel(writer, sheet_name="Refusi", index=False)
+
+    return file_name

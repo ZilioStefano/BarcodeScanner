@@ -20,23 +20,27 @@ def clearHistory():
             A = 2
 
 
-def download_excel(request):
-    scanPhoto()
-    clearHistory()
-
-    response = FileResponse(open('Lista scansioni.xlsx', 'rb'), as_attachment=True, filename="Lista scansioni.xlsx")
-
+def download_file(file):
+    response = FileResponse(open(file, 'rb'), as_attachment=True, filename=file)
     return response
 
-    # download_cheatsheet(request)
-    #
-    # return redirect('index')
+
+def download_excel(request):
+    folder_path = r"media\RilevaMatricole_Images"
+    files = os.listdir(folder_path)
+    file_name = scanPhoto(folder_path, files)
+    clearHistory()
+
+    response = FileResponse(open(file_name, 'rb'), as_attachment=True, filename=file_name)
+
+    return response
 
 
 # Create your views here.
 def index(request):
     images = Image.objects.all()
     context = {'images': images}
+
     return render(request, "index.html", context)
 
 
