@@ -40,7 +40,6 @@ def download_excel(request):
 def index(request):
     images = Image.objects.all()
     context = {'images': images}
-    C = 3
 
     return render(request, "index.html", context)
 
