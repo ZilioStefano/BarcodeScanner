@@ -12,12 +12,12 @@ def clearHistory():
     for file in files:
         os.remove('media/RilevaMatricole_Images/'+file)
 
-    images = Image.objects.all()
-    for i in range(len(images)+1000):
-        try:
-            Image.objects.get(id=i).delete()
-        except:
-            A = 2
+    Image.objects.all().delete()
+    # for i in range(len(images)+1000):
+    #     try:
+    #         Image.objects.get(id=i).delete()
+    #     except:
+    #         A = 2
 
 
 def download_file(file):
