@@ -33,7 +33,7 @@
   <div class="container row">
     {% for image in images %}
       <div class="card col-md-4" style="width: 18rem;">
-        <img src="{{image.pic.url}}" class="card-img-top" alt="...">
+        {{image.file_name}}
       </div>
     {% endfor %}
   </div>

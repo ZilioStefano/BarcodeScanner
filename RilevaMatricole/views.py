@@ -40,6 +40,7 @@ def download_excel(request):
 def index(request):
     images = Image.objects.all()
     context = {'images': images}
+    C = 3
 
     return render(request, "index.html", context)
 
@@ -51,7 +52,7 @@ def fileupload(request):
         images = request.FILES.getlist('pic')
 
         for image in images:
-            image_ins = Image(pic=image)
+            image_ins = Image(pic=image, file_name=image.name)
             image_ins.save()
         return redirect('index')
 
