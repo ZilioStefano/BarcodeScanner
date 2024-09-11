@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import ImagesForm
 from .models import Image
-from RilevaMatricole.functions.Img2Barcode import scanPhoto
+from RilevaMatricole.functions.Img2Barcode import scanPhoto, scanPhoto_TEST
 from django.http import FileResponse
 import os
 
@@ -28,7 +28,7 @@ def download_file(file):
 def download_excel(request):
     folder_path = r"media\RilevaMatricole_Images"
     files = os.listdir(folder_path)
-    file_name = scanPhoto(folder_path, files)
+    file_name = scanPhoto_TEST(folder_path, files)
     clearHistory()
 
     response = FileResponse(open(file_name, 'rb'), as_attachment=True, filename=file_name)
