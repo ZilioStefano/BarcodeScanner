@@ -2,7 +2,7 @@ from dbr import *
 import pandas as pd
 from datetime import datetime
 import json
-
+import re
 
 def scanPhoto_TEST(folder_path, files):
 
@@ -48,15 +48,19 @@ def scanPhoto_TEST(folder_path, files):
                 #altrimenti prova altre 2 volte
 
                 # 5.Output the barcode text.
-                    if results != None:
+                    if results != None:# and results.barcode_text.isdigit == True:
                         for text_result in results:
-                            file_list.append(file)
 
-                            print("Barcode Format : " + text_result.barcode_format_string)
-                            print("Barcode Text : " + text_result.barcode_text)
-                            trovate.append(text_result.barcode_text)
+                            if text_result.barcode_text.isnumeric() == True:
+                                file_list.append(file)
 
-                            exit = 1
+                                print("Barcode Format : " + text_result.barcode_format_string)
+                                print("Barcode Text : " + text_result.barcode_text)
+                                trovate.append(text_result.barcode_text)
+                                exit = 1
+                            else:
+                                print("Tentativo n°: " + str(attempts + 1))
+                                attempts += 1
                     else:
                         print("Tentativo n°: "+str(attempts+1))
                         attempts += 1
@@ -71,6 +75,7 @@ def scanPhoto_TEST(folder_path, files):
 
                 # 6.Release resource
                 dbr.recycle_instance()
+
             except Exception as err:
                 index_refuso = index_refuso + 1
                 # trovate.append("Refuso "+index_refuso)
