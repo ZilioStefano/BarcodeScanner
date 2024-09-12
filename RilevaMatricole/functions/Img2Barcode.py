@@ -6,6 +6,8 @@ import json
 
 def scanPhoto_TEST(folder_path, files):
 
+    print("METODO TEST")
+
     with open('casi/template-9.json', 'r') as file:
         data = json.load(file)
 
@@ -17,8 +19,6 @@ def scanPhoto_TEST(folder_path, files):
 
     index_refuso = 0
     i = 0
-
-
 
     for file in files:
         i = i + 1
@@ -40,7 +40,7 @@ def scanPhoto_TEST(folder_path, files):
                 attempts = 0
                 exit = 0
 
-                while exit == 0 and attempts < 3:
+                while exit == 0 and attempts < 2:
 
                     results = dbr.decode_file(image_path)
 
@@ -110,6 +110,8 @@ def scanPhoto_TEST(folder_path, files):
 
 def scanPhoto(folder_path, files):
 
+    print("METODO OLD")
+
     trovate = []
     file_list = []
     lista_refusi = []
@@ -169,7 +171,7 @@ def scanPhoto(folder_path, files):
                 attempts = 0
                 exit = 0
 
-                while exit == 0 and attempts < 3:
+                while exit == 0 and attempts < 2:
 
                     results = reader.decode_file(image_path)
 
