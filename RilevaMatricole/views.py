@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
-from .forms import ImagesForm
+from .forms import ImagesForm, MethodForm
 from .models import Image
-from RilevaMatricole.functions.Img2Barcode import scanPhoto, scanPhoto_TEST
+from RilevaMatricole.functions.Img2Barcode import scan
 from django.http import FileResponse
 import os
 from datetime import datetime
+import pandas as pd
 
 
 def clearHistory():
@@ -14,11 +15,6 @@ def clearHistory():
         os.remove('media/RilevaMatricole_Images/'+file)
 
     Image.objects.all().delete()
-    # for i in range(len(images)+1000):
-    #     try:
-    #         Image.objects.get(id=i).delete()
-    #     except:
-    #         A = 2
 
 
 def download_file(file):
@@ -27,11 +23,15 @@ def download_file(file):
 
 
 def download_excel(request):
+
+    method = pd.read_csv("method.csv")
+    method = method["method"]
+
     folder_path = r"media\RilevaMatricole_Images"
     files = os.listdir(folder_path)
 
     start = datetime.now()
-    file_name = scanPhoto_TEST(folder_path, files)
+    file_name = scan(method, folder_path, files)
     end = datetime.now()
 
     print("TEMPO DI SCANSIONE: "+str(end-start))
@@ -45,13 +45,8 @@ def download_excel(request):
 # Create your views here.
 def index(request):
 
-    start = datetime.now()
     images = Image.objects.all()
     context = {'images': images}
-
-    end = datetime.now()
-
-    delta = end - start
 
     return render(request, "index.html", context)
 
@@ -59,15 +54,20 @@ def index(request):
 def fileupload(request):
 
     clearHistory()
-    form = ImagesForm(request.POST, request.FILES)
+    upload_form = ImagesForm(request.POST, request.FILES)
+
     if request.method == 'POST':
         images = request.FILES.getlist('pic')
+        method = pd.DataFrame({"method": request.POST['method']}, index=[0])
+        method.to_csv("method.csv", index=False)
 
         for image in images:
             image_ins = Image(pic=image, file_name=image.name)
             image_ins.save()
         return redirect('index')
 
-    context = {'form': form}
+    method_form = MethodForm(request.POST, request.FILES)
+
+    context = {'upload_form': upload_form, 'method_form': method_form}
 
     return render(request, "upload.html", context)
